@@ -14,7 +14,7 @@ wuvitCo = {
     "Brashnard": ["N/A", False]
 }
 
-tradingCoNames = ["Test", "kweibs", "Brashnard"]
+tradingCoNames = ["Wuvit", "kweibs", "Brashnard"]
 
 def UpdateWuvitName():
     page = requests.get("https://steamcommunity.com/profiles/76561198323881586")
@@ -22,6 +22,34 @@ def UpdateWuvitName():
     name = tree.xpath('//span[@class="actual_persona_name"]/text()')[0]
     tradingCoNames[0] = name
     print(tradingCoNames[0])
+
+#returns most likely grid
+#Note: More info on wuvits crew will help increase ability to guess his location
+def DeterminWuvitCurrentLocation():
+    brash = FindPlayer(tradingCoNames[2])
+
+    possibleGrids = []
+    
+    #generate possible grids
+    counter = 0
+    probablyDurrationDelay = 60 #seconds
+    for x in data["grids"]:
+        for y in x["players"]:
+            if tradingCoNames[0] == y["name"]:
+                possibleGrids.append(x)
+                if(brash[0] == x):
+                    #compare durrations here
+                    possibleGrids[counter].append(15)
+                else:
+                    possibleGrids[counter].append(0)
+                counter += 1
+
+    if len(possibleGrids) == 1
+        return [possibleGrids[0], 100]
+
+
+def DeterminWuvitBaseLocation():
+    return null;
 
 def FindPlayer(name):
     url = urllib.request.urlopen("https://atlas.reznok.com/na_pvp_players.json")
@@ -33,21 +61,37 @@ def FindPlayer(name):
 
     return name + " is not online"
 
+def FindPlayerRaw(name):
+    url = urllib.request.urlopen("https://atlas.reznok.com/na_pvp_players.json")
+    data = json.loads(url.read().decode())
+    for x in data["grids"]:
+        for y in x["players"]:
+            if name == y["name"]:
+                return [x["grid"], y["duration"]]
+
+    return "N/A"
+
 def GetTradingCompany():
     url = urllib.request.urlopen("https://atlas.reznok.com/na_pvp_players.json")
     data = json.loads(url.read().decode())
-    found = [False, False, False]
+    found = [0, 0, 0]
     for x in data["grids"]:
         for y in x["players"]:
             if tradingCoNames[0] == y["name"]:
-                wuvitCo["Wuvit"][0] = x["grid"]
-                found[0] = True
+                if "123" != wuvitCo["Wuvit"][0]:
+                    wuvitCo["Wuvit"][0] = x["grid"]
+                    found[0] = 1
+                else:
+                    data = DeterminWuvitLocation()
+                    found[0] = data[1]
+                    wuvitCo["Wuvit"][0] = data[0]
+
             elif tradingCoNames[1] == y["name"]:
                 wuvitCo["kweibs"][0] = x["grid"]
-                found[1] = True
+                found[1] = 1
             elif tradingCoNames[1] == y["name"]:
                 wuvitCo["Brashnard"][0] = x["grid"]
-                found[1] = True
+                found[1] = 1
 
                 
     wuvitCo["Wuvit"][1] = found[0]
