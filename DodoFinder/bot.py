@@ -45,12 +45,55 @@ def SaveGridStates():
     
     outfile = open('lastState.json', 'w')  
     json.dump(data, outfile)
+    print("Grids State Saved")
 
-def CheckEnter(region):
+def LoadUsersToNotify():
+    usersToNotify.clear()
+    file = open("notifyUsers.txt", 'r')
+    for line in file:
+        usersToNotify.append(line)
+    file.close()
+    print("Notification List Loaded")
+
+def SaveUsersToNotify():
+    file = open("notifyUsers.txt", 'w')
+    for user in usersToNotify:
+        file.write(user)
+    print("Notification List Saved")
+
+def GetUsersInRegion(region):
+    url = urllib.request.urlopen("https://atlas.reznok.com/na_pvp_players.json")
+    data = json.loads(url.read().decode())
+    
+    players = [] 
+    for x in data["grids"]:
+       if x["grid"] == region:
+        for y in x["players"]:
+            players.append(y['name'])
+    
+    return players
+
+def GetNewUsers(region):
     if region == "N/A":
         return
+    newUsers = []
+    try:
+        index = gridSpaces.index(region)
+       
+        with open("lastState.json") as file:
+            data = json.load(file)
+            for new in GetUsersInRegion(region):
+                isnew = True
+                for old in data['grids'][index]:
+                   if new == old:
+                       isnew = False
+                       break
+                if isnew == True:
+                    newUsers.append(new)
+    except:
+        print("Failed To Gather Either New Or Old State")
 
-
+    return newUsers
 
 def FindPlayer(name):
     url = urllib.request.urlopen("https://atlas.reznok.com/na_pvp_players.json")
@@ -61,6 +104,13 @@ def FindPlayer(name):
                 return x["grid"]
 
     return "N/A"
+
+
+def Exit():
+    SaveUsersToNotify()
+    SaveGridStates()
+    exit(1)
+
 
 token = "NTM3MTE2OTQ3OTM1MDAyNjU0.Dygktw.ohiu8VFhjrydv7nCE70h36lOKf0"
 client = discord.Client()
@@ -78,6 +128,7 @@ async def status_task():
 async def on_ready():
     print(client.user.name + "Is Ready")
     #client.loop.create_task(status_task())
+    LoadUsersToNotify()
     SaveGridStates()
 
 client.run(token)
