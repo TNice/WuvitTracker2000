@@ -8,8 +8,6 @@ import requests
 data = ""
 s = sched.scheduler(time.time, time.sleep)
 
-tradingCoNames = ["Test", "kweibs", "Brashnard"]
-
 grid = {}
 grid["grids"] = {}
 
