@@ -11,7 +11,7 @@ s = sched.scheduler(time.time, time.sleep)
 grid = {}
 grid["grids"] = {}
 
-usersToNotify = []
+usersToNotify = {}
 
 gridSpaces = [
     'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12', 'A13', 'A14', 'A15',
@@ -105,12 +105,10 @@ def FindPlayer(name):
 
     return "N/A"
 
-
 def Exit():
     SaveUsersToNotify()
     SaveGridStates()
     exit(1)
-
 
 token = "NTM3MTE2OTQ3OTM1MDAyNjU0.Dygktw.ohiu8VFhjrydv7nCE70h36lOKf0"
 client = discord.Client()
@@ -120,10 +118,17 @@ async def on_message(message):
     return
                     
 async def status_task():
+    isFirst = True
     while True:
+        if isFirst != True:
+            for user in usersToNotify:
+                newUsers = GetNewUsers(FindPlayer(user))
+                if len(newUser) != 0:
+                    #sends message to user
+
+        isFirst = False
         await asyncio.sleep(90)
-    
-           
+            
 @client.event
 async def on_ready():
     print(client.user.name + "Is Ready")
